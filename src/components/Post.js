@@ -72,9 +72,10 @@ export default class Post extends Component {
                     <TouchableOpacity onPress={this.like}>
                         <Image style={styles.botaoDeLike} source={this.carregaIcone(foto.likeada)} />
                     </TouchableOpacity>
+
+                    {this.exibeLikes(foto.likers)}
+                    {this.exibeLegenda(foto)}
                 </View>
-                {this.exibeLikes(foto.likers)}
-                {this.exibeLegenda(foto)}
             </View>
         );
     }
