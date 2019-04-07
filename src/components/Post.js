@@ -15,27 +15,6 @@ export default class Post extends Component {
         }
     }
 
-    like = () => {
-        const { foto } = this.state;
-        let novaLista = [];
-        if (!foto.likeada) {
-            novaLista = [
-                ...foto.likers,
-                { login: 'meuUsuario' }
-            ];
-        } else {
-            novaLista = foto.likers.filter(liker => {
-                return liker.login !== 'meuUsuario'
-            });
-        }
-        const fotoAtualizada = {
-            ...foto,
-            likeada: !foto.likeada,
-            likers: novaLista
-        }
-        this.setState({ foto: fotoAtualizada });
-    }
-
     exibeLegenda(foto) {
         if (foto.comentario === '')
             return;
@@ -47,24 +26,8 @@ export default class Post extends Component {
         );
     }
 
-    adicionaComentario = (valorComentario, inputComentario) => {
-        if (valorComentario === '')
-            return;
-        const novaLista = [...this.state.foto.comentarios, {
-            id: valorComentario,
-            login: 'meuUsuario',
-            texto: valorComentario,
-        }];
-        const fotoAtualizada = {
-            ...this.state.foto,
-            comentarios: novaLista,
-        }
-        this.setState({ foto: fotoAtualizada });
-        inputComentario.clear();
-    }
-
     render() {
-        const { foto } = this.state;
+        const { foto, likeCallback, comentarioCallback } = this.props;
         return (
             <View>
                 <View style={styles.cabecalho}>
@@ -77,7 +40,7 @@ export default class Post extends Component {
                     style={styles.foto} />
 
                 <View style={styles.rodape}>
-                    <Likes foto={foto} likeCallback={this.like} />
+                    <Likes foto={foto} likeCallback={likeCallback} />
                     {this.exibeLegenda(foto)}
                     {foto.comentarios.map(comentario =>
                         <View style={styles.comentario} key={comentario.id}>
@@ -86,7 +49,7 @@ export default class Post extends Component {
                         </View>
                     )}
 
-                    <InputComentario comentarioCallback={this.adicionaComentario} />
+                    <InputComentario idFoto={foto.id} comentarioCallback={comentarioCallback} />
                 </View>
             </View>
         );
