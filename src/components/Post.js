@@ -89,24 +89,24 @@ export default class Post extends Component {
                     <TouchableOpacity onPress={this.like}>
                         <Image style={styles.botaoDeLike} source={this.carregaIcone(foto.likeada)} />
                     </TouchableOpacity>
-                </View>
-                {this.exibeLikes(foto.likers)}
-                {this.exibeLegenda(foto)}
-                {foto.comentarios.map(comentario =>
-                    <View style={styles.comentario} key={comentario.id}>
-                        <Text style={styles.tituloComentario}>{comentario.login}</Text>
-                        <Text>{comentario.texto}</Text>
+                    {this.exibeLikes(foto.likers)}
+                    {this.exibeLegenda(foto)}
+                    {foto.comentarios.map(comentario =>
+                        <View style={styles.comentario} key={comentario.id}>
+                            <Text style={styles.tituloComentario}>{comentario.login}</Text>
+                            <Text>{comentario.texto}</Text>
+                        </View>
+                    )}
+                    <View style={styles.novoComentario}>
+                        <TextInput style={styles.input}
+                            placeholder="Adicione um comentário..."
+                            ref={input => this.inputComentario = input}
+                            onChangeText={texto => this.setState({ valorComentario: texto })} />
+                        <TouchableOpacity onPress={this.adicionaComentario}>
+                            <Image style={styles.icone}
+                                source={require('../../resources/img/send.png')} />
+                        </TouchableOpacity>
                     </View>
-                )}
-                <View style={styles.novoComentario}>
-                    <TextInput style={styles.input}
-                        placeholder="Adicione um comentário..."
-                        ref={input => this.inputComentario = input}
-                        onChangeText={texto => this.setState({ valorComentario: texto })} />
-                    <TouchableOpacity onPress={this.adicionaComentario}>
-                        <Image style={styles.icone}
-                            source={require('../../resources/img/send.png')} />
-                    </TouchableOpacity>
                 </View>
             </View>
         );
