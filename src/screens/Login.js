@@ -5,9 +5,9 @@ import {
     TextInput,
     Text,
     Button,
-    AsyncStorage,
     StyleSheet
 } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 
 const width = Dimensions.get('screen').width;
 
