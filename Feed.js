@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import { FlatList, StyleSheet } from 'react-native';
+import { FlatList, ScrollView, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import InstaluraFetchService from './src/services/InstaluraFetchService';
 import Post from './src/components/Post';
+import HeaderUsuario from './src/components/HeaderUsuario';
 
 export default class Feed extends Component {
   constructor() {
@@ -83,23 +84,66 @@ export default class Feed extends Component {
       });
   }
 
-  componentDidMount() {
-    InstaluraFetchService.get('/fotos')
+  verPerfilUsuario = (idFoto) => {
+    const foto = this.buscaPorId(idFoto);
+
+    this.props.navigator.push('Feed', {
+      component: {
+        name: 'PerfilUsuario',
+        backButtonTitle: '',
+        passProps: {
+          usuario: foto.loginUsuario,
+          fotoDePerfil: foto.urlPerfil
+        },
+        options: {
+          topBar: {
+            title: {
+              text: foto.loginUsuario
+            }
+          }
+        }
+      }
+    });
+  }
+
+  carregaFotos() {
+    let uri = '/fotos';
+    if (this.props.usuario)
+      uri = `/public/fotos/${this.props.usuario}`;
+
+    InstaluraFetchService.get(uri)
       .then(json => this.setState({ fotos: json }))
       .catch(e => {
         Notificacao.exibe('Ops..', 'Algo deu errado ao carregar as fotos');
       });
   }
 
+  componentDidMount() {
+    Navigator.setOnNavigatorEvent(evento => {
+      if (evento.id === 'willAppear')
+        this.carregaFotos();
+    });
+  }
+
+  exibeHeader() {
+    if (this.props.usuario)
+      return <HeaderUsuario {...this.props}
+        posts={this.state.fotos.length} />;
+  }
+
   render() {
     return (
-      <FlatList style={styles.container}
-        keyExtractor={item => item.id}
-        data={this.state.fotos}
-        renderItem={({ item }) =>
-          <Post foto={item} likeCallback={this.like} comentarioCallback={this.adicionaComentario} />
-        }
-      />
+      <ScrollView>
+        {this.exibeHeader()}
+
+        <FlatList style={styles.container}
+          keyExtractor={item => item.id}
+          data={this.state.fotos}
+          renderItem={({ item }) =>
+            <Post foto={item} likeCallback={this.like} comentarioCallback={this.adicionaComentario} verPerfilCallback={this.verPerfilUsuario} />
+          }
+        />
+      </ScrollView>
     );
   }
 }

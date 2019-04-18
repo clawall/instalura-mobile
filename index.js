@@ -5,30 +5,38 @@ import Login from './src/screens/Login';
 
 Navigation.registerComponent('Login', () => Login);
 Navigation.registerComponent('Feed', () => Feed);
+Navigation.registerComponent('PerfilUsuario', () => Feed); // nova tela
 
 Navigation.events().registerAppLaunchedListener(() =>
     AsyncStorage.getItem('token')
         .then(token => {
             if (token) {
                 return {
-                    name: 'Feed',
-                    options: {},
-                    passProps: {
-                        text: 'Instalura'
+                    component: {
+                        name: 'Feed',
+                        options: {},
+                        passProps: {
+                            text: 'Instalura'
+                        },
+                        stack: {
+                            children: [{
+                                component: {
+                                    name: 'PerfilUsuario'
+                                }
+                            }]
+                        }
                     }
                 }
             }
             return {
-                name: 'Login',
-                options: {},
-                passProps: {
-                    text: 'Login'
+                component: {
+                    name: 'Login',
+                    options: {},
+                    passProps: {
+                        text: 'Login'
+                    }
                 }
             };
         })
-        .then(screen => Navigation.setRoot({
-            root: {
-                component: screen
-            }
-        }))
+        .then(screen => Navigation.setRoot({ root: screen }))
 );

@@ -30,11 +30,12 @@ export default class Post extends Component {
         const { foto, likeCallback, comentarioCallback } = this.props;
         return (
             <View>
-                <View style={styles.cabecalho}>
+                <TouchableOpacity style={styles.cabecalho}
+                    onPress={() => verPerfilCallback(foto.id)}>
                     <Image source={{ uri: foto.urlPerfil }}
                         style={styles.fotoDePerfil} />
                     <Text>{foto.loginUsuario}</Text>
-                </View>
+                </TouchableOpacity>
 
                 <Image source={{ uri: foto.urlFoto }}
                     style={styles.foto} />
