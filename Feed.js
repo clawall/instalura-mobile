@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
+import InstaluraFetchService from './src/services/InstaluraFetchService';
 import Post from './src/components/Post';
 
 export default class Feed extends Component {
@@ -18,9 +19,9 @@ export default class Feed extends Component {
 
   atualizaFotos(fotoAtualizada) {
     const listaAtualizada = this.state.fotos
-        .map(foto => foto.id === fotoAtualizada.id ? fotoAtualizada : foto);
+      .map(foto => foto.id === fotoAtualizada.id ? fotoAtualizada : foto);
 
-    this.setState({fotos: listaAtualizada});
+    this.setState({ fotos: listaAtualizada });
   }
 
   like = (idFoto) => {
@@ -48,39 +49,25 @@ export default class Feed extends Component {
         };
         this.atualizaFotos(fotoAtualizada);
       });
-    const uri = `https://instalura-api.herokuapp.com/api/fotos/${idFoto}/like`;
-    AsyncStorage.getItem('token')
-      .then(token => {
-        return {
-          method: 'POST',
-          headers: new Headers({
-            "X-AUTH-TOKEN": token
-          })
-        }
-      })
-      .then(requestInfo => fetch(uri, requestInfo));
+
+    InstaluraFetchService.post(`/fotos/${idFoto}/like`)
+      .catch(e => {
+        this.setState({ fotos: listaOriginal })
+        Notificacao.exibe('Ops..', 'Algo deu errado ao curtir')
+      });
   }
 
   adicionaComentario = (idFoto, valorComentario, inputComentario) => {
     if (valorComentario === '')
       return;
+
+    const estadoAtual = this.state
     const foto = this.buscaPorId(idFoto);
-    const uri = `https://instalura-api.herokuapp.com/api/fotos/${idFoto}/comment`;
-    AsyncStorage.getItem('token')
-      .then(token => {
-        return {
-          method: 'POST',
-          body: JSON.stringify({
-            texto: valorComentario
-          }),
-          headers: new Headers({
-            "Content-type": "application/json",
-            "X-AUTH-TOKEN": token
-          })
-        };
-      })
-      .then(requestInfo => fetch(uri, requestInfo))
-      .then(resposta => resposta.json())
+
+    const comentario = {
+      texto: valorComentario
+    };
+    InstaluraFetchService.post(`/fotos/${idFoto}/comment`, comentario)
       .then(comentario => [...foto.comentarios, comentario])
       .then(novaLista => {
         const fotoAtualizada = {
@@ -89,22 +76,19 @@ export default class Feed extends Component {
         }
         this.atualizaFotos(fotoAtualizada);
         inputComentario.clear();
+      })
+      .catch(e => {
+        this.setState({ ...estadoAtual })
+        Notificacao.exibe('Ops..', 'Algo deu errado ao adicionar comentário');
       });
   }
 
   componentDidMount() {
-    const uri = 'https://instalura-api.herokuapp.com/api/fotos'
-    AsyncStorage.getItem('token')
-      .then(token => {
-        return {
-          headers: new Headers({
-            "X-AUTH-TOKEN": token
-          })
-        }
-      })
-      .then(requestInfo => fetch(uri, requestInfo))
-      .then(resposta => resposta.json())
-      .then(json => this.setState({ fotos: json }));
+    InstaluraFetchService.get('/fotos')
+      .then(json => this.setState({ fotos: json }))
+      .catch(e => {
+        Notificacao.exibe('Ops..', 'Algo deu errado ao carregar as fotos');
+      });
   }
 
   render() {
